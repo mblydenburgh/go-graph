@@ -1,0 +1,70 @@
+name: Deploy CDK Stack
+
+on: 
+  push:
+    branchs: [main]
+  
+jobs:
+  aws_cdk:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-linux-musl
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-region: us-east-1
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Run Build, Tag, and push
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{steps.login-ecr.outputs.registry}}
+          ECR_REPOSITORY: ${{secrets.ECR_REPOSITORY}}
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          echo "Pushing image to ECR..."
+          docker push $ECR_REGISTRY/#ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Install Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20
+
+      - name: Install Stack Dependencies
+        working-directory: ./cdk
+        run: sudo npm ci
+
+      - name: Install CDK CLI
+        run: sudo npm install -g aws-cdk
+
+      - name: Synth Stack
+        working-directory: ./cdk
+        env:
+          AWS_ACCOUNT: ${{secrets.AWS_ACCOUNT}}
+        run: cdk synth
+
+      - name: CDK Bookstrap
+        working-directory: ./cdk
+        env:
+          AWS_ACCOUNT: ${{secrets.AWS_ACCOUNT}}
+        run: cdk bootstrap aws://$AWS_ACCOUNT/us-east-1
+
+      - name: Deploy CDK Stack
+        working-directory: ./cdk
+        env:
+          AWS_ACCOUNT: ${{secrets.AWS_ACCOUNT}}
+          REPO_NAME: ${{secrets.REPO_NAME}}
+        run: cdk deploy --require-approval never

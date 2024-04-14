@@ -8,7 +8,7 @@ export class CdkStack extends cdk.Stack {
     super(scope, id, props);
 
     const table = new dynamodb.Table(this, 'Table', {
-      tableName: 'go-grapg-table',
+      tableName: 'go-graph-table',
       partitionKey: {
         name: 'PK',
         type: dynamodb.AttributeType.STRING
