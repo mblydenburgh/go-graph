@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+import * as ecr from "aws-cdk-lib/aws-ecr";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as eventSource from "aws-cdk-lib/aws-lambda-event-sources";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
@@ -33,10 +34,13 @@ export class CdkStack extends cdk.Stack {
           }
     })
 
+    const code = lambda.DockerImageCode.fromEcr(
+      ecr.Repository.fromRepositoryName(this, "ImageRepository", process.env.REPO_NAME || "bogus")
+    )
     // new docker based go lambda
     const goLambda = new lambda.DockerImageFunction(this, "GoLambda", {
       functionName: "go-graph-lambda",
-      code: lambda.DockerImageCode.fromImageAsset(path.resolve(__dirname, "../../")),
+      code,
       memorySize: 256,
     });
     goLambda.addEventSource(new eventSource.ApiEventSource("ANY", "/"))
