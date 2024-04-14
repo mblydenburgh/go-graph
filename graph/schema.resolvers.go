@@ -18,7 +18,6 @@ func (r *mutationResolver) UpsertUser(ctx context.Context, input model.UpdateUse
 	fmt.Println("UpsertUser")
 	user := &model.User{}
 	id := input.ID
-	fmt.Println("id: ", id)
 	email := input.Email
 	displayName := input.DisplayName
 	integrations := input.Integrations
@@ -26,36 +25,25 @@ func (r *mutationResolver) UpsertUser(ctx context.Context, input model.UpdateUse
 	roles := input.Roles
 
 	if email != nil {
-		fmt.Println("email: ", email)
 		user.Email = *email
 	}
-	fmt.Println("set email success")
 	if displayName != nil {
-		fmt.Println("displayName: ", displayName)
 		user.DisplayName = *displayName
 	}
-	fmt.Println("set displayName success")
 	if integrations != nil {
-		fmt.Println("integrations: ", integrations)
 		user.Integrations = integrations
 	}
-	fmt.Println("set integrations success")
 	if products != nil {
-		fmt.Println("products: ", products)
 		user.Products = products
 	}
-	fmt.Println("set products success")
 	if roles != nil {
-		fmt.Println("roles: ", roles)
 		user.Roles = roles
 	}
 
 	fmt.Println("adding user: ", user)
 
 	usersLength := len(r.UserStore)
-	fmt.Println("usersLength: ", usersLength)
 	if usersLength == 0 {
-		fmt.Println("UserStore is empty")
 		r.UserStore = make(map[string]model.User)
 	}
 	if id != nil {
