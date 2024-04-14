@@ -36,8 +36,7 @@ export class CdkStack extends cdk.Stack {
     // new docker based go lambda
     const goLambda = new lambda.DockerImageFunction(this, "GoLambda", {
       functionName: "go-graph-lambda",
-      code: lambda.DockerImageCode.fromImageAsset(path.resolve(__dirname, "../../")),
-      architecture: lambda.Architecture.ARM_64,
+      code: lambda.DockerImageCode.fromImageAsset(path.resolve(__dirname, "../../app")),
       memorySize: 256,
     });
     goLambda.addEventSource(new eventSource.ApiEventSource("ANY", "/"))
