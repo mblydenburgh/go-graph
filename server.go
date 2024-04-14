@@ -13,10 +13,7 @@ import (
 
 const defaultPort = "8080"
 
-// Defining the Graphql handler
 func graphqlHandler() gin.HandlerFunc {
-	// NewExecutableSchema and Config are in the generated.go file
-	// Resolver is in the resolver.go file
 	h := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
 
 	return func(c *gin.Context) {
@@ -24,7 +21,6 @@ func graphqlHandler() gin.HandlerFunc {
 	}
 }
 
-// Defining the Playground handler
 func playgroundHandler() gin.HandlerFunc {
 	h := playground.Handler("GraphQL", "/query")
 
