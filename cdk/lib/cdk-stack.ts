@@ -43,7 +43,8 @@ export class CdkStack extends cdk.Stack {
       code,
       memorySize: 256,
     });
-    goLambda.addEventSource(new eventSource.ApiEventSource("ANY", "/"))
+    goLambda.addEventSource(new eventSource.ApiEventSource("POST", "/query"))
+    goLambda.addEventSource(new eventSource.ApiEventSource("GET", "/playground"))
 
   }
 }
